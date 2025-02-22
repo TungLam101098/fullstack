@@ -6,6 +6,9 @@ import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { hashPasswordHelper } from '@/helpers/util';
 import aqp from 'api-query-params';
+import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import { v4 } from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -77,5 +80,27 @@ export class UsersService {
     }
 
     return await this.userModel.deleteOne({ _id });
+  }
+
+  async handleRegister(createUserDto: CreateAuthDto) {
+    try {
+      const { name, email, password } = createUserDto;
+
+      const hashPassword = await hashPasswordHelper(password);
+      const user = await this.userModel.create({
+        name,
+        email,
+        password: hashPassword,
+        isActive: false,
+        codeId: v4(),
+        codeExpired: dayjs().add(1, 'day').toDate(),
+      });
+
+      return {
+        _id: user._id,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }
