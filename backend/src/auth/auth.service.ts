@@ -12,9 +12,14 @@ export class AuthService {
   ) {}
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      return null;
+    }
+
     const isValidPassword = await comparePasswordHelper(pass, user.password);
 
-    if (!isValidPassword || !user) {
+    if (!isValidPassword || !user.email) {
       return null;
     }
 
