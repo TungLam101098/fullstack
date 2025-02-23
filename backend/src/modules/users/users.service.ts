@@ -59,7 +59,13 @@ export class UsersService {
       .sort(sort as any);
     return {
       results,
-      totalPages,
+      meta: {
+        totalItems,
+        itemCount: results.length,
+        itemsPerPage: pageSize,
+        totalPage: totalPages,
+        currentPage: current,
+      },
     };
   }
 
